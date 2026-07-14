@@ -4,6 +4,7 @@ use axum::response::{Html, IntoResponse};
 use crate::state::AppState;
 use axum::Router;
 use axum::routing::{get};
+use tracing::error;
 use crate::vides::routers::build_video_routers;
 
 #[derive(Template)]
@@ -12,7 +13,10 @@ struct IndexTemplate;
 async fn index_handler() -> impl IntoResponse {
     match IndexTemplate.render() {
         Ok(html) => Html(html).into_response(),
-        Err(_) => (StatusCode::INTERNAL_SERVER_ERROR).into_response(),
+        Err(e) => {
+            error!("{e}");
+            (StatusCode::INTERNAL_SERVER_ERROR).into_response()
+        },
     }
 }
 
