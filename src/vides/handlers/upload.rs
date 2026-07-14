@@ -20,13 +20,14 @@ pub(crate) async fn video_upload_handler(
         }
         None => state.config.data_dir.clone(),
     };
-    info!("Uploading to: {}",video_upload_path.display());
+
 
     while let Ok(Some(mut field)) = multipart.next_field().await{
 
         let file_name = field.file_name()
             .unwrap_or_default()
             .to_string();
+        info!("Uploading {} to: {}",&file_name,video_upload_path.display());
         let file_path = video_upload_path.join(file_name);
         match tokio::fs::File::create(&file_path).await{
             Ok(mut file) => {
