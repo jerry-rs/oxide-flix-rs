@@ -1,4 +1,5 @@
 use askama::Template;
+use axum::extract::DefaultBodyLimit;
 use axum::http::StatusCode;
 use axum::response::{Html, IntoResponse};
 use crate::state::AppState;
@@ -25,5 +26,6 @@ pub(crate) fn build_global_routers(state: AppState) -> Router {
         .route("/", get(index_handler))
         .merge(build_video_routers())
         .layer(tower_http::cors::CorsLayer::permissive())
+        .layer(DefaultBodyLimit::disable())
         .with_state(state)
 }

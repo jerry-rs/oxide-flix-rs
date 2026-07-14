@@ -658,6 +658,10 @@
                         <span class="meta-label">播放模式</span>
                         <span class="meta-value">${escapeHtml(data.suggested_player_mode)}</span>
                     </div>
+                     <div class="meta-item">
+                        <span class="meta-label">SHA256</span>
+                        <span class="meta-value">${escapeHtml(data.sha256)}</span>
+                    </div>
                 </div>
             `;
 
@@ -719,16 +723,22 @@
     async function uploadFile(file) {
         hideError();
         const formData = new FormData();
+        // 键名为 'file'，对应后端的 multipart.next_field()
         formData.append('file', file);
 
         try {
-            const url = currentPath
-                ? `${BASE_URL}/api/video/upload/${currentPath}`
+            // ✨ 修复：对路径进行分段 URL 编码，防止中文和特殊字符破坏 HTTP 请求
+            const encPath = currentPath
+                ? currentPath.split('/').map(seg => encodeURIComponent(seg)).join('/')
+                : "";
+
+            const url = encPath
+                ? `${BASE_URL}/api/video/upload/${encPath}`
                 : `${BASE_URL}/api/video/upload`;
 
             const resp = await fetch(url, {
                 method: 'POST',
-                body: formData,
+                body: formData, // 这里的 formData 会自动让浏览器生成正确的 multipart 头
             });
 
             if (!resp.ok) {

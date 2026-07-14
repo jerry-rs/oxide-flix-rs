@@ -8,9 +8,13 @@ use crate::routers::build_global_routers;
 use crate::state::AppState;
 use clap::Parser;
 use std::sync::Arc;
+use mimalloc::MiMalloc;
 use tracing::{info};
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
+
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
 
 #[tokio::main]
 async fn main() {

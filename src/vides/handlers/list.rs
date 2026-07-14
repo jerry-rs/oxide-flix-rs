@@ -16,7 +16,7 @@ struct DirEntry {
 fn is_video_ext(ext: &str) -> bool {
     matches!(
         ext.to_lowercase().as_str(),
-        "mp4" | "mkv" | "webm" | "avi" | "mov" | "wmv" | "flv" | "m4v" | "ts" | "m3u8"
+        "mp4" | "mkv" | "webm" | "avi" | "mov" | "wmv" | "flv" | "m4v" | "ts" | "m3u8" | "srt"
     )
 }
 

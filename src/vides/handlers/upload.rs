@@ -25,14 +25,26 @@ pub(crate) async fn video_upload_handler(
     while let Ok(Some(mut field)) = multipart.next_field().await{
 
         let file_name = field.file_name()
-            .unwrap_or_default();
+            .unwrap_or_default()
+            .to_string();
         let file_path = video_upload_path.join(file_name);
-
         match tokio::fs::File::create(&file_path).await{
             Ok(mut file) => {
-                while let Ok(Some(chunk)) = field.chunk().await{
-                    if let Err(e) = file.write_all(&chunk).await{
-                        error!("{e}");
+                loop {
+                    match field.chunk().await{
+                        Ok(Some(chunk)) => {
+                            if let Err(e) = file.write_all(&chunk).await{
+                                error!("{e}");
+                                break;
+                            }
+                        },
+                        Ok(None) => {
+                            break;
+                        },
+                        Err(e) => {
+                            error!("{e}");
+                            break;
+                        }
                     }
                 }
             },
