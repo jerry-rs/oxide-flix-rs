@@ -1,45 +1,45 @@
 # Oxide Flix 🦀
 
-一个基于 Rust + Axum 的轻量级本地视频流媒体播放器。自动扫描指定目录下的视频文件，提供 Web 界面进行浏览、播放和管理。
+A lightweight local video streaming player built with Rust + Axum. It automatically scans a specified directory for video files and provides a Web interface for browsing, playing, and managing them.
 
-## 截图
+## Preview
 
 ```
 ┌─────────────────────────────────────────────┐
 │  🦀 Oxide Flix                                │
 ├─────────────────────────────────────────────┤
-│  📁 根目录 / Movies / Sci-Fi                 │
+│  📁 Root / Movies / Sci-Fi                   │
 ├─────────────────────────────────────────────┤
 │  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐      │
 │  │ 📁   │ │ 📁   │ │ 🎬  │ │ 🎬  │      │
 │  │Movies│ │  TV  │ │alien│ │ dune│      │
-│  │文件夹 │ │文件夹 │ │1.2GB│ │ 2.1G│      │
+│  │ Folder│ │Folder│ │1.2GB│ │ 2.1GB│      │
 │  └──────┘ └──────┘ └──────┘ └──────┘      │
 ├─────────────────────────────────────────────┤
 │  ┌─────────────────────────────────────┐    │
-│  │           ▶ 视频播放器               │    │
+│  │           ▶ Video Player             │    │
 │  └─────────────────────────────────────┘    │
 │  ┌─────────────────────────────────────┐    │
 │  │ 🎬 alien.mp4                        │    │
-│  │ 文件名称: alien.mp4  大小: 1.2 GB   │    │
-│  │ 编码格式: video/mp4  模式: html5    │    │
+│  │ Name: alien.mp4     Size: 1.2 GB   │    │
+│  │ Type: video/mp4     Mode: html5    │    │
 │  └─────────────────────────────────────┘    │
 └─────────────────────────────────────────────┘
 ```
 
-## 功能
+## Features
 
-- 📂 **文件浏览器** — 以网格形式展示目录下的所有视频文件和子文件夹，支持面包屑导航
-- ▶️ **视频播放** — 基于 HTML5 `<video>` 的流式播放，支持进度条拖拽（HTTP Range）
-- 📋 **元数据显示** — 展示文件名、大小、MIME 类型等基本信息
-- 🗑️ **删除管理** — 鼠标悬停时出现删除按钮，支持删除文件或整个文件夹
-- 🔒 **路径安全** — 所有文件操作都经过路径净化，防止目录穿越攻击
-- 🌐 **响应式布局** — 支持不同屏幕尺寸
+- 📂 **File Browser** — Grid-based display of video files and subdirectories with breadcrumb navigation
+- ▶️ **Video Playback** — HTML5 `<video>` streaming with seek support (HTTP Range requests)
+- 📋 **Metadata Display** — Shows filename, size, MIME type and other basic info
+- 🗑️ **Delete Management** — Delete button appears on hover; supports removing files or entire folders
+- 🔒 **Path Security** — All file operations go through path sanitization to prevent directory traversal attacks
+- 🌐 **Responsive Layout** — Adapts to different screen sizes
 
-## 支持的视频格式
+## Supported Video Formats
 
-| 格式 | 扩展名 |
-|------|--------|
+| Format | Extension |
+|--------|-----------|
 | MP4  | `.mp4` |
 | MKV  | `.mkv` |
 | WebM | `.webm` |
@@ -51,57 +51,57 @@
 | TS   | `.ts`  |
 | M3U8 | `.m3u8` |
 
-> 实际能否播放取决于浏览器的解码能力。推荐使用 Chrome / Edge 等现代浏览器以获得最佳兼容性。
+> Actual playback capability depends on the browser's codec support. Chrome / Edge are recommended for best compatibility.
 
-## 快速开始
+## Quick Start
 
-### 前置条件
+### Prerequisites
 
-- Rust 工具链（edition 2024）
+- Rust toolchain (edition 2024)
 
-### 编译 & 运行
+### Build & Run
 
 ```bash
-# 编译
+# Build
 cargo build --release
 
-# 运行（使用当前目录作为媒体目录）
+# Run (using current directory as media root)
 ./target/release/oxide-flix-rs
 
-# 指定媒体目录
+# Specify a media directory
 ./target/release/oxide-flix-rs --data-dir /path/to/your/videos
 
-# 指定端口
+# Specify a port
 ./target/release/oxide-flix-rs --port 8080
 ```
 
-打开浏览器访问 `http://127.0.0.1:1000`。
+Open your browser and navigate to `http://127.0.0.1:1000`.
 
-### 配置项
+### Configuration
 
-| 参数 | 环境变量 | 默认值 | 说明 |
-|------|---------|--------|------|
-| `--ipv4` | `APP_IPV4` | `0.0.0.0` | 监听地址 |
-| `--port` | `APP_PORT` | `1000` | 监听端口 |
-| `--data-dir` | `APP_DATA_DIR` | 当前目录 | 媒体文件根目录 |
+| Argument | Environment Variable | Default | Description |
+|----------|--------------------|---------|-------------|
+| `--ipv4` | `APP_IPV4` | `0.0.0.0` | Listening address |
+| `--port` | `APP_PORT` | `1000` | Listening port |
+| `--data-dir` | `APP_DATA_DIR` | Current directory | Media file root directory |
 
-## API 接口
+## API Reference
 
-所有 API 均返回 JSON，并经过路径安全校验。
+All API endpoints return JSON and are protected by path sanitization.
 
-### `GET /` — 首页
+### `GET /` — Home page
 
-返回 Web 管理界面。
+Returns the Web interface.
 
-### `GET /api/video/list` — 根目录列表
+### `GET /api/video/list` — List root directory
 
-列出 `APP_DATA_DIR` 根目录下的文件和文件夹。
+Lists files and folders under `APP_DATA_DIR`.
 
-### `GET /api/video/list/{*path}` — 子目录列表
+### `GET /api/video/list/{*path}` — List subdirectory
 
-列出指定子目录下的文件和文件夹。
+Lists files and folders under a specified subdirectory.
 
-**响应示例：**
+**Example response:**
 ```json
 {
   "entries": [
@@ -112,33 +112,33 @@ cargo build --release
 }
 ```
 
-### `GET /api/video/info/{*path}` — 视频元数据
+### `GET /api/video/info/{*path}` — Video metadata
 
-获取视频文件的基本信息。
+Returns basic information about a video file.
 
-### `GET /api/video/stream/{*path}` — 视频流
+### `GET /api/video/stream/{*path}` — Video stream
 
-流式传输视频文件，支持 HTTP Range 头实现进度拖拽。
+Streams a video file with HTTP Range header support for seeking.
 
-### `DELETE /api/video/delete/{*path}` — 删除
+### `DELETE /api/video/delete/{*path}` — Delete
 
-删除指定的文件或文件夹（文件夹会递归删除所有内容）。
+Deletes a file or folder (folders are removed recursively).
 
-## 项目结构
+## Project Structure
 
 ```
 oxide-flix-rs/
-├── Cargo.toml          # 项目依赖与配置
+├── Cargo.toml          # Dependencies and project config
 ├── src/
-│   └── main.rs         # 服务端入口：路由、Handler、路径安全逻辑
+│   └── main.rs         # Server entry: routes, handlers, path sanitization
 ├── templates/
-│   └── index.html      # 前端页面：文件浏览器 + 播放器
+│   └── index.html      # Frontend: file browser + video player
 └── README.md
 ```
 
-## 技术栈
+## Tech Stack
 
-- **后端**: [Axum](https://github.com/tokio-rs/axum) (Web 框架) + [Tokio](https://tokio.rs) (异步运行时)
-- **前端**: 原生 HTML + CSS + JavaScript（无框架依赖）
-- **模板**: [Askama](https://github.com/rust-askama/askama) (服务端模板引擎)
-- **命令行**: [Clap](https://github.com/clap-rs/clap) (参数解析)
+- **Backend**: [Axum](https://github.com/tokio-rs/axum) (Web framework) + [Tokio](https://tokio.rs) (async runtime)
+- **Frontend**: Vanilla HTML + CSS + JavaScript (zero framework dependencies)
+- **Templating**: [Askama](https://github.com/rust-askama/askama) (server-side template engine)
+- **CLI**: [Clap](https://github.com/clap-rs/clap) (argument parsing)
