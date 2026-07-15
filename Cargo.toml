@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-askama = { version = "0.16.0", features = ["derive"] }
 axum = { version = "0.8.9", features = ["macros", "multipart"] }
 clap = { version = "4.6.1", features = ["derive", "env"] }
 hex = { version = "0.4.3", features = ["serde"] }
@@ -18,3 +17,4 @@ tower = { version = "0.5.3", features = ["util"] }
 tower-http = { version = "0.7.0", features = ["full"] }
 tracing = { version = "0.1.44" }
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+rust-embed = {version = "8.12.0",features = ["axum-ex","mime-guess"]}
