@@ -5,7 +5,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { Folder, Home, Video } from "lucide-react"
+import { Folder, Home, Trash2, Video } from "lucide-react"
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "./components/ui/input-otp"
 
 type VideoEntry = {
@@ -21,35 +21,6 @@ const formatSize = (sizeBytes: number) => {
   if (sizeBytes < 1024 * 1024) return `${(sizeBytes / 1024).toFixed(1)} KB`
   return `${(sizeBytes / (1024 * 1024)).toFixed(1)} MB`
 }
-
-const columns = [
-  columnHelper.accessor("name", {
-    header: "Name",
-    cell: (info) => {
-      const isDir = info.row.original.is_dir
-
-      return (
-        <div className="flex items-center gap-3">
-          <div className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-semibold ${isDir ? "bg-sky-500/15 text-sky-400" : "bg-emerald-500/15 text-emerald-400"}`}>
-            {isDir ? <Folder className="h-5 w-5" /> : <Video className="h-5 w-5" />}
-          </div>
-          <div>
-            <p className="font-medium text-white">{info.getValue()}</p>
-            <p className="text-sm text-slate-400">{isDir ? "文件夹" : "文件"}</p>
-          </div>
-        </div>
-      )
-    },
-  }),
-  columnHelper.accessor("is_dir", {
-    header: "Type",
-    cell: (info) => <span className="text-slate-300">{info.getValue() ? "文件夹" : "文件"}</span>,
-  }),
-  columnHelper.accessor("size_bytes", {
-    header: "Size",
-    cell: (info) => <span className="text-slate-300">{formatSize(info.getValue())}</span>,
-  }),
-]
 
 type VideoListResponse = {
   entries: VideoEntry[]
@@ -99,6 +70,31 @@ function App() {
     window.open(fullUrl, "_blank", "noopener,noreferrer")
   }
 
+  const handleDelete = async (name: string) => {
+    const confirmed = window.confirm(`确定删除 "${name}" 吗？`)
+    if (!confirmed) return
+
+    const normalizedCurrentPath = currentPath.replace(/^\/+|\/+$/g, "")
+    const pathSegments = normalizedCurrentPath
+      ? normalizedCurrentPath.split("/").filter(Boolean).concat(name)
+      : [name]
+    const encodedPath = pathSegments.map(encodeURIComponent).join("/")
+
+    try {
+      const response = await fetch(`/api/video/delete/${encodedPath}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        throw new Error(`Delete failed with status ${response.status}`)
+      }
+
+      await loadVideos(currentPath)
+    } catch (error) {
+      console.error("Failed to delete item", error)
+    }
+  }
+
   const handleBreadcrumbClick = (segments: string[]) => {
     const targetPath = segments.join("/")
     loadVideos(targetPath)
@@ -132,6 +128,52 @@ function App() {
     loadVideos(currentPath)
     event.target.value = ""
   }
+
+  const columns = [
+    columnHelper.accessor("name", {
+      header: "Name",
+      cell: (info) => {
+        const isDir = info.row.original.is_dir
+
+        return (
+          <div className="flex items-center gap-3">
+            <div className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-semibold ${isDir ? "bg-sky-500/15 text-sky-400" : "bg-emerald-500/15 text-emerald-400"}`}>
+              {isDir ? <Folder className="h-5 w-5" /> : <Video className="h-5 w-5" />}
+            </div>
+            <div>
+              <p className="font-medium text-white">{info.getValue()}</p>
+              <p className="text-sm text-slate-400">{isDir ? "文件夹" : "文件"}</p>
+            </div>
+          </div>
+        )
+      },
+    }),
+    columnHelper.accessor("is_dir", {
+      header: "Type",
+      cell: (info) => <span className="text-slate-300">{info.getValue() ? "文件夹" : "文件"}</span>,
+    }),
+    columnHelper.accessor("size_bytes", {
+      header: "Size",
+      cell: (info) => <span className="text-slate-300">{formatSize(info.getValue())}</span>,
+    }),
+    columnHelper.display({
+      id: "actions",
+      header: "Actions",
+      cell: (info) => (
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation()
+            handleDelete(info.row.original.name)
+          }}
+          className="inline-flex items-center gap-2 rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm font-medium text-rose-300 transition hover:bg-rose-500/20"
+        >
+          <Trash2 className="h-4 w-4" />
+          Delete
+        </button>
+      ),
+    }),
+  ]
 
   const table = useReactTable({
     data: videoData,
